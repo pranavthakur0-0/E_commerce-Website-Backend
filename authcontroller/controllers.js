@@ -81,18 +81,22 @@ exports.login = async(req,res,next)=>
         const {email, password, checked} = req.body.info;
         const user = await userAccount.login(email,password);
             const token = cookieToken(user._id);
-            
     // To send cookie we also need to accept cookie at client side and their is some code to it
 
     /*  const data = await axios.post("http://localhost:4000/api/server/login", info,{withCredentials : true,});  
     above code is client side code which is used to accept cookie  */
+         const cookieOptions = {
+           withCredentials: true,
+           httpOnly: false,
+         };
 
-            res.cookie("Wedesgin_loggedIn_permanent", token, {
-                withCredentials : true,
-                httpOnly : false,
-                maxage : maxage * 1000
-            });
-            
+         if (checked) {
+           cookieOptions.maxAge = maxage * 1000;
+         } else {
+           cookieOptions.maxAge = null; // Set to null for browser session
+         }
+
+            res.cookie("Wedesgin_loggedIn_permanent", token, cookieOptions);
             res.status(200).json({user : user._id, created : true})
             const data = await BagAccount.findOne({ personid: user._id }) || new BagAccount({ personid: user._id, BagItem: [] });
             await data.save();
@@ -182,3 +186,37 @@ module.exports.getProfile = (req,res,next)=>{
             res.json({status:false});
     }
 }
+
+
+
+module.exports.editProfile = async (req, res, next) => {
+    const { email, firstname, lastname, gender, market, phonenumber, postal, staff, password } = req.body.info;
+  
+    try {
+      const filter = { email };
+      const update = {
+        $set: {
+          firstname,
+          lastname,
+          gender,
+          market,
+          phonenumber,
+          postal,
+          staff
+        }
+      };
+      const options = { new: true };
+  
+      let user = await userAccount.findOneAndUpdate(filter, update, options);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+  
+      console.log(user);
+      res.status(200).json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+  

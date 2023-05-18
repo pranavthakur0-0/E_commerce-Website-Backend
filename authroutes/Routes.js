@@ -5,6 +5,7 @@ const {register,
        activation, 
        cookie_checker, 
        getProfile,
+       editProfile
        } = require('../authcontroller/controllers.js')
 
 const {singlefile, getallproducts, getSingleProduct, getAllMatchingProduct, getRecommendedProduct}= require('../authcontroller/productcontroller.js');
@@ -25,6 +26,7 @@ const {GetCategoryLinks,  multipeUpload} = require('../authcontroller/admincontr
 
 
 const {tempId, tempToReal} = require('../authcontroller/tempcontroller.js')
+const  {SearchBoxRecommendation, ProductSearch} = require('../authcontroller/SearchBox.js')
 //temp route
 
 router.route('/server/getTempId').get(tempId)
@@ -37,12 +39,12 @@ router.route('/server/register').post(register);
 router.route('/server/login').post(login, tempToReal);
 router.route('/server/cookie').get(cookie_checker);
 router.route('/server/confirmation/:token').get(activation);
-router.route('/server/profile').get(getProfile);
+router.route('/server/profile').get(checkUser, getProfile).post(editProfile);
 
 //products route 
 
 //to get all products
-router.get('/server/admin/products/:gender/:headerlink/:item', getallproducts);
+router.get('/server/admin/products', getallproducts);
 
 //get all products related to selected product
 router.route('/server/admin/products/:name').get(getAllMatchingProduct);
@@ -77,4 +79,8 @@ router.route('/server/bag_item/count').get(checkUser, getBagCount).post(checkUse
 //to get category links for adding a product into the database
 router.post('/server/admin/products', upload, multipeUpload);
 router.route('/server/admin/link').get(GetCategoryLinks);
+
+
+//serchbox request
+router.route('/server/search').get(SearchBoxRecommendation);
 module.exports = router;

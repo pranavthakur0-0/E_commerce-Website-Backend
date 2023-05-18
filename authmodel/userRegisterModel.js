@@ -25,7 +25,7 @@ const userAccount = new mongoose.Schema({
         maxlength: 20,
         match: /^[^0-9]*$/
     },
-    number: {
+    phonenumber: {
         type: Number,
         max: 999999999999, // set maximum value to 12 digits
         min: 0, // set minimum value to 0
@@ -36,7 +36,7 @@ const userAccount = new mongoose.Schema({
           message: 'Number must be a string of 1 to 12 digits'
         }
       },
-      pincode: {
+      postal: {
         type: Number,
         validate: {
           validator: function(v) {
@@ -49,13 +49,21 @@ const userAccount = new mongoose.Schema({
         type: Date,
         required: [true, "Date of birth is required"],
     },
-    checked: {
-        type: Boolean,
-        default: false
-    },
     verified: {
         type: Boolean,
         default: false
+    },
+    gender : {
+      type :String,
+      maxlength: 20
+    },
+    market: {
+      type :String,
+      maxlength: 20
+    },
+    staff : {
+      type :String,
+      maxlength: 20
     }
 })
 
@@ -69,11 +77,12 @@ userAccount.pre("save", async function(next){
     Typically, you would use a pre-save hook to modify or validate a document before it is saved to the database. For example, you might use a pre-save hook to automatically generate a timestamp or to hash a password. 
     
     */
-
     const salt = await bcrypt.genSalt();
     this.password = await bcrypt.hash(this.password, salt);
     next();
 })
+
+
 
 
 userAccount.statics.login = async function(email,password){
@@ -81,11 +90,11 @@ userAccount.statics.login = async function(email,password){
     if(user){
         const auth = await bcrypt.compare(password, user.password);
         if(auth){
-            if(user.checked){
+            if(user.verified){
                 return user;
             }
             else{
-                throw Error("notActive");
+                throw Error("User is Not Verified");
             }
         }else{
             throw Error("Incorrect password");
