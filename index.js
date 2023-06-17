@@ -18,6 +18,12 @@ app.use(cors({
     credentials:true,
   })
 )
+app.use(function(req, res, next) {
+  res.setHeader('Access-Control-Allow-Origin', 'https://wedesignclothing.netlify.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+});
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 console.log(__dirname);
