@@ -15,7 +15,7 @@ const products = new mongoose.Schema({
     },
     headlink : {
       type: String,
-      required: [true, "Headlink is required"],
+      default : "N/A"
     },
     category: {
       type: String,

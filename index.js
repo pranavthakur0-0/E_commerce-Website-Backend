@@ -13,8 +13,8 @@ dotenv.config({path : './config/config.env'});
 app.use(express.json());
 app.use(cookieparser());
 app.use(cors({
-    origin:["http://localhost:3000"],
-    method : ["GET","POST"],
+    origin:["https://wedesignclothing.netlify.app/"],
+    methods: ["GET", "POST", "DELETE"], 
     credentials:true,
   })
 )

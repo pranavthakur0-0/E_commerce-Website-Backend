@@ -9,6 +9,7 @@ exports.checkUser = async(req,res,next)=>{
           else {
             req.decodedToken = decodedtoken; // store decoded token in request object
             next();
+
           }
         });
       }
@@ -17,6 +18,7 @@ exports.checkUser = async(req,res,next)=>{
         try{
           const tempId = await TempId.findOne({ id: clienttempID });
           if(tempId){
+            console.log(req.tempId);
             req.tempId = tempId.id;
             next();
           }

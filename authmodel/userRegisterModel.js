@@ -64,6 +64,22 @@ const userAccount = new mongoose.Schema({
     staff : {
       type :String,
       maxlength: 20
+    },
+    address1 : {
+      type :String,
+      maxlength: 80
+    },
+    address2 : {
+      type :String,
+      maxlength: 80
+    },
+    city : {
+      type :String,
+      maxlength: 40
+    },
+    state : {
+      type :String,
+      maxlength: 40
     }
 })
 

@@ -8,7 +8,7 @@ const {register,
        editProfile
        } = require('../authcontroller/controllers.js')
 
-const {singlefile, getallproducts, getSingleProduct, getAllMatchingProduct, getRecommendedProduct}= require('../authcontroller/productcontroller.js');
+const {singlefile, getallproducts, getSingleProduct, getAllMatchingProduct, getRecommendedProduct, reduceCount}= require('../authcontroller/productcontroller.js');
 const {upload} = require('../middleware/fileUpload.js')
 const {navlinks}=require('../authcontroller/navlinkcontroller.js');
 
@@ -17,6 +17,8 @@ const {AddLinks, getLinks, getAllcolor} = require('../authcontroller/mainlinksco
 const {getFav, addFav, AllFavProducts, deleteFavItem} = require('../authcontroller/favcontroller.js')
 
 const {addToBag, getBag, deleteItem, getBagCount, changeProductCount} = require('../authcontroller/bagcontroller.js')
+
+const {getorderdetails, editorderdetails, getorderuser , addToOder, emptybag, getOrder} = require('../authmodel/ordercontroller.js')
 
 
 const {checkUser} = require('../authcontroller/userCheckercontroller.js')
@@ -39,11 +41,18 @@ router.route('/server/register').post(register);
 router.route('/server/login').post(login, tempToReal);
 router.route('/server/cookie').get(cookie_checker);
 router.route('/server/confirmation/:token').get(activation);
-router.route('/server/profile').get(checkUser, getProfile).post(editProfile);
+router.route('/server/profile').get(checkUser, getProfile).post(checkUser, editProfile);
 
+
+
+//order route
+router.route('/server/order/user').get(checkUser, getorderuser);
+router.route('/server/order').get(checkUser, getorderdetails).post(checkUser, editorderdetails, reduceCount, addToOder, emptybag);
+router.route('/server/getOrder').get(checkUser, getOrder);
 //products route 
 
 //to get all products
+
 router.get('/server/admin/products', getallproducts);
 
 //get all products related to selected product

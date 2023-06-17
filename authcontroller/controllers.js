@@ -80,7 +80,7 @@ exports.login = async(req,res,next)=>
     try{
         const {email, password, checked} = req.body.info;
         const user = await userAccount.login(email,password);
-            const token = cookieToken(user._id);
+        const token = cookieToken(user._id);
     // To send cookie we also need to accept cookie at client side and their is some code to it
 
     /*  const data = await axios.post("http://localhost:4000/api/server/login", info,{withCredentials : true,});  
@@ -98,11 +98,13 @@ exports.login = async(req,res,next)=>
 
             res.cookie("Wedesgin_loggedIn_permanent", token, cookieOptions);
             res.status(200).json({user : user._id, created : true})
+
             const data = await BagAccount.findOne({ personid: user._id }) || new BagAccount({ personid: user._id, BagItem: [] });
             await data.save();
             const favac = await FavAccount.findOne({ personid: user._id }) || new FavAccount({ personid: user._id, favItem: [] });
             await favac.save();
             req.decodedToken = user._id;
+            
             next();  
         
         
@@ -175,7 +177,18 @@ module.exports.getProfile = (req,res,next)=>{
         }           
          else{
             //0 means it will not return that value back to user
-            const user = await userAccount.findById(decodedtoken.id, { password : 0, verified:0, checked:0 });
+            let user = await userAccount.findById(decodedtoken.id, { password : 0, verified:0, checked:0 });
+            const dateObj = new Date(user.dateOfBirth);
+            const dateString = dateObj.toLocaleDateString();
+            const [date, month, year] = dateString.split("/");
+              // Add the extracted values to the user object
+
+              //------------------------IMPORTANT POINT------------------------
+              // Convert user to a mutable object
+              user = user.toJSON();
+              user.year = year;
+              user.month = month;
+              user.date = date;
             if(user){
                 res.json({status:true, user: user});}
                 else res.json({status:false});
@@ -188,35 +201,44 @@ module.exports.getProfile = (req,res,next)=>{
 }
 
 
+module.exports.editProfile = async(req, res, next) => {
+  try {
+    const { email} = req.body.info;
+    const update = {
+      $set: {}
+    };
+    const fieldsToUpdate = [
+      'email',
+      'firstname',
+      'lastname',
+      'gender',
+      'market',
+      'phonenumber',
+      'postal',
+      'staff',
+      'password',
+      'address1',
+      'address2',
+      'city',
+      'state'
+    ];
 
-module.exports.editProfile = async (req, res, next) => {
-    const { email, firstname, lastname, gender, market, phonenumber, postal, staff, password } = req.body.info;
-  
-    try {
-      const filter = { email };
-      const update = {
-        $set: {
-          firstname,
-          lastname,
-          gender,
-          market,
-          phonenumber,
-          postal,
-          staff
-        }
-      };
-      const options = { new: true };
-  
-      let user = await userAccount.findOneAndUpdate(filter, update, options);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+    fieldsToUpdate.forEach(field => {
+      if (req.body.info[field]) {
+        update.$set[field] = req.body.info[field];
       }
-  
-      console.log(user);
-      res.status(200).json(user);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal server error' });
+    });
+
+    const filter = { email };
+    const options = { new: true };
+    let user = await userAccount.findOneAndUpdate(filter, update, options);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
-  };
-  
+    res.status(200).json(user);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

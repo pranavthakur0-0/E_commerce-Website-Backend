@@ -145,3 +145,20 @@ exports.getRecommendedProduct = async (req, res, next) => {
     res.status(400).send(err);
   }
 };
+
+
+exports.reduceCount = async (req, res, next) => {
+  const cartdata = req.body.cartdata;
+  try {
+    if (cartdata.length > 0) {
+      for (const item of cartdata) {
+        const allProducts = await Product.findByIdAndUpdate(item._id, {$inc : {count : -item.count}}, {new:true});
+      }
+    }
+    // Additional code logic here
+    next();
+  } catch (error) {
+    // Handle any errors that occur during the process
+    console.log(error);
+  }
+};
